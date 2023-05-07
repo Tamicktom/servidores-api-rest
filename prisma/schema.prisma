@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  role      String    @default("WAITER")
+}
+
+model RestaurantTable {
+  id        String    @id @default(uuid())
+  number    Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  orders    Order[]
+  status    String    @default("AVAILABLE")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  items       Item[]
+}
+
+model Item {
+  id          String      @id @default(uuid())
+  description String?
+  image       String?
+  name        String
+  price       Float
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+  orderItems  OrderItem[]
+  category    Category?   @relation(fields: [categoryId], references: [id])
+  categoryId  String?
+}
+
+model OrderItem {
+  id        String    @id @default(uuid())
+  order     Order     @relation(fields: [orderId], references: [id])
+  orderId   String
+  item      Item      @relation(fields: [itemId], references: [id])
+  itemId    String
+  quantity  Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Order {
+  id                String          @id @default(uuid())
+  name              String?
+  restaurantTable   RestaurantTable @relation(fields: [restaurantTableId], references: [id])
+  restaurantTableId String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  deletedAt         DateTime?
+  status            String          @default("OPEN")
+  draft             Boolean         @default(true)
+  orderItem         OrderItem[]
+}
