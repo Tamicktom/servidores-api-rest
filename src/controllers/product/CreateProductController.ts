@@ -9,7 +9,7 @@ const productSchema = z.object({
   name: z.string().min(3).max(255),
   price: z.number().min(0),
   description: z.string().min(3).max(255),
-  id_category: z.number(),
+  categoryId: z.string(),
   banner: z.string().min(3).max(255).optional(),
 });
 
@@ -17,6 +17,7 @@ export type ProductRequest = z.infer<typeof productSchema>;
 
 export default class CreateProductController {
   async handle(req: Request, res: Response) {
+    const body = req.body;
     const parsedBody = productSchema.parse(req.body);
 
     if (!req.file) return res.status(400).json({ error: "File is missing" });
