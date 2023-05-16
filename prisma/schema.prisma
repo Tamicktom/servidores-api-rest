@@ -35,28 +35,29 @@ model Category {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
-  items       Item[]
+  products    Product[]
 }
 
-model Item {
-  id          String      @id @default(uuid())
-  description String?
-  image       String?
-  name        String
-  price       Float
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  deletedAt   DateTime?
-  orderItems  OrderItem[]
-  category    Category?   @relation(fields: [categoryId], references: [id])
-  categoryId  String?
+model Product {
+  id           String         @id @default(uuid())
+  description  String?
+  image        String?
+  name         String
+  price        Float
+  banner       String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?
+  orderProduct OrderProduct[]
+  category     Category?      @relation(fields: [categoryId], references: [id])
+  categoryId   String?
 }
 
-model OrderItem {
+model OrderProduct {
   id        String    @id @default(uuid())
   order     Order     @relation(fields: [orderId], references: [id])
   orderId   String
-  item      Item      @relation(fields: [itemId], references: [id])
+  product   Product   @relation(fields: [itemId], references: [id])
   itemId    String
   quantity  Int
   createdAt DateTime  @default(now())
@@ -74,5 +75,5 @@ model Order {
   deletedAt         DateTime?
   status            String          @default("OPEN")
   draft             Boolean         @default(true)
-  orderItem         OrderItem[]
+  orderProduct      OrderProduct[]
 }
