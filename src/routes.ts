@@ -6,6 +6,7 @@ import CreateUserController from "./controllers/user/CreateUserController";
 import DetailUserController from "./controllers/user/DetailUserController";
 import AuthUserController from "./controllers/user/AuthUserController";
 import CreateCategoryController from "./controllers/category/CreateCategoryController";
+import ListCategoryController from "./controllers/category/ListCategoryController";
 import isAuthenticated from "./middlewares/isAuthenticated";
 
 const routes = Router();
@@ -20,5 +21,6 @@ routes.post(
   isAuthenticated,
   new CreateCategoryController().handle
 );
+routes.get("/category", isAuthenticated, new ListCategoryController().handle);
 
 export { routes };
