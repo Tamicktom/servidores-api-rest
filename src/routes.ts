@@ -13,6 +13,7 @@ import CreateCategoryController from "./controllers/category/CreateCategoryContr
 import ListCategoryController from "./controllers/category/ListCategoryController";
 import CreateProductController from "./controllers/product/CreateProductController";
 import ListByCategoryController from "./controllers/product/ListByCategoryController";
+import CreateOrderController from "./controllers/order/CreateOrderController";
 import isAuthenticated from "./middlewares/isAuthenticated";
 
 const routes = Router();
@@ -44,5 +45,8 @@ routes.get(
   isAuthenticated,
   new ListByCategoryController().handle
 );
+
+//* --------- Rotas para Order --------- *//
+routes.post("/order", isAuthenticated, new CreateOrderController().handle);
 
 export { routes };
