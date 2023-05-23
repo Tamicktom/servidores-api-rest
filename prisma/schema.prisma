@@ -18,16 +18,6 @@ model User {
   role      String    @default("WAITER")
 }
 
-model RestaurantTable {
-  id        String    @id @default(uuid())
-  number    Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  orders    Order[]
-  status    String    @default("AVAILABLE")
-}
-
 model Category {
   id          String    @id @default(uuid())
   name        String
@@ -66,14 +56,13 @@ model OrderProduct {
 }
 
 model Order {
-  id                String          @id @default(uuid())
-  name              String?
-  restaurantTable   RestaurantTable @relation(fields: [restaurantTableId], references: [id])
-  restaurantTableId String
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  deletedAt         DateTime?
-  status            String          @default("OPEN")
-  draft             Boolean         @default(true)
-  orderProduct      OrderProduct[]
+  id           String         @id @default(uuid())
+  name         String?
+  table        Int
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?
+  status       String         @default("OPEN")
+  draft        Boolean        @default(true)
+  orderProduct OrderProduct[]
 }

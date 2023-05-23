@@ -12,6 +12,8 @@ import AuthUserController from "./controllers/user/AuthUserController";
 import CreateCategoryController from "./controllers/category/CreateCategoryController";
 import ListCategoryController from "./controllers/category/ListCategoryController";
 import CreateProductController from "./controllers/product/CreateProductController";
+import ListByCategoryController from "./controllers/product/ListByCategoryController";
+import CreateOrderController from "./controllers/order/CreateOrderController";
 import isAuthenticated from "./middlewares/isAuthenticated";
 
 const routes = Router();
@@ -19,7 +21,6 @@ const routes = Router();
 const upload = multer(uploadConfig.upload("./tmp"));
 
 //* --------- Rotas para User --------- *//
-
 routes.post("/user", new CreateUserController().handle);
 routes.post("/session", new AuthUserController().handle);
 routes.get("/userinfo", isAuthenticated, new DetailUserController().handle);
@@ -33,9 +34,19 @@ routes.post(
 routes.get("/category", isAuthenticated, new ListCategoryController().handle);
 
 //* --------- Rotas para Product --------- *//
+routes.post(
+  "/product",
+  isAuthenticated,
+  upload.single("file"),
+  new CreateProductController().handle
+);
+routes.get(
+  "/category/product",
+  isAuthenticated,
+  new ListByCategoryController().handle
+);
 
-routes.post("/product", isAuthenticated, upload.single("file"), new CreateProductController().handle);
-
-
+//* --------- Rotas para Order --------- *//
+routes.post("/order", isAuthenticated, new CreateOrderController().handle);
 
 export { routes };

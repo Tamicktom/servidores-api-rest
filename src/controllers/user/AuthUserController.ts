@@ -6,7 +6,7 @@ import AuthUserService from "../../services/user/AuthUserService";
 
 export default class AuthUserController {
   async handle(request: Request, response: Response) {
-    const { email, password, name } = request.body;
+    const { email, password } = request.body;
 
     const authUserService = new AuthUserService();
 

@@ -3,7 +3,9 @@ import type { Request, Response, NextFunction } from "express";
 import { verify } from "jsonwebtoken";
 import z from "zod";
 
+//* Local imports
 import env from "../variables";
+import type { AuthenticatedRequest } from "../@types/AuthenticatedRequest";
 
 const authorizationSchema = z.string().nonempty();
 
@@ -32,7 +34,8 @@ export default function isAuthenticated(
     console.log("User authenticated");
 
     const subString = typeof sub === "string" ? sub : sub.toString();
-    req.user_id = subString;
+
+    (req as AuthenticatedRequest).user_id = subString;
 
     return next();
   } catch (error) {
