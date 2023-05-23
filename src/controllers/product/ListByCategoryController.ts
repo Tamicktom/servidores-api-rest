@@ -1,5 +1,5 @@
 //* Libraries imports
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import z from "zod";
 
 //* Local imports
