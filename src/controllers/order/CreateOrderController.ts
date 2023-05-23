@@ -14,7 +14,7 @@ export type CreateOrderType = z.infer<typeof CreateOrderSchema>;
 
 export default class CreateOrderController {
   async handle(request: Request, response: Response) {
-    const { table, name } = request.body as CreateOrderType;
+    const { table, name } = request.body;
 
     try {
       await CreateOrderSchema.parseAsync({ table, name });
