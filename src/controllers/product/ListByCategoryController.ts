@@ -25,6 +25,8 @@ export default class ListByCategoryController {
     } catch (error) {
       if (error instanceof z.ZodError) {
         return response.status(400).json({ error: error.errors });
+      } else {
+        return response.status(500).json({ error: "Server error" });
       }
     }
   }
