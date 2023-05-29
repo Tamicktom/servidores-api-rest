@@ -2,10 +2,24 @@
 import axios from "axios";
 import z from "zod";
 
+const ImageUrl = "https://i.pinimg.com/564x/9b/14/51/9b1451178712523a1e87db4c06cc0deb.jpg";
+
 const randomUser = {
   name: generateRandomName(),
   email: generateRandomEmail(),
   password: "123zxcZXC@"
+}
+
+async function downloadImageToFormData(url: string): Promise<FormData> {
+  const response = await axios.get(url, {
+    responseType: 'arraybuffer' // Indica que a resposta deve ser tratada como um array de bytes
+  });
+
+  const formData = new FormData();
+  const blob = new Blob([response.data], { type: 'image/jpeg' });
+  formData.append('file', blob, 'imagem.jpg');
+
+  return formData;
 }
 
 function generateRandomName() {
@@ -148,8 +162,11 @@ console.log("It should be possible to get all categories");
 
 const categoriesSchema = z.array(categorySchema);
 
+type Categories = z.infer<typeof categoriesSchema>;
+
 async function getAllCategories() {
-  axios.get("http://localhost:3333/category", {
+  const res: Categories = [];
+  await axios.get("http://localhost:3333/category", {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -158,8 +175,37 @@ async function getAllCategories() {
       console.log(response.data);
       const tmpCategories = categoriesSchema.parse(response.data);
       console.log("Categories retrieved!");
+      res.push(...tmpCategories);
     }).catch((error) => {
       console.error("Error retrieving categories");
+      console.log(error);
+    });
+  return res;
+}
+
+console.log("It should be possible to add a product");
+
+const productSchema = z.object({});
+
+async function addProduct() {
+  const form = await downloadImageToFormData(ImageUrl);
+  form.append("name", "Product Test");
+  form.append("price", "20");
+  form.append("description", "grande e amarela");
+  const categories = await getAllCategories();
+  form.append("categoryId", categories[0].id);
+  axios.post("http://localhost:3333/product", form, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then((response) => {
+      console.log(response.data);
+      const tmpProduct = productSchema.parse(response.data);
+      console.log("Product added!");
+    })
+    .catch((error) => {
+      console.error("Error adding product");
       console.log(error);
     });
 }
@@ -171,6 +217,7 @@ createUser().then(() => {
         getUserInfo()
         addCategory();
         getAllCategories();
+        addProduct();
       }, 500);
     });
   }, 500);
