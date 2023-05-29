@@ -171,8 +171,8 @@ createUser().then(() => {
         getUserInfo()
         addCategory();
         getAllCategories();
-      }, 2000);
+      }, 500);
     });
-  }, 2000);
+  }, 500);
 });
 
