@@ -6,7 +6,7 @@ import z from "zod";
 import AddItemService from "../../services/order/AddItemService";
 
 const AddItemSchema = z.object({
-  qtd: z.number().positive(),
+  quantity: z.number().positive(),
   orderId: z.string().uuid(),
   productId: z.string().uuid(),
 });
@@ -16,11 +16,11 @@ export type AddItemRequest = z.infer<typeof AddItemSchema>;
 export default class AddItemController {
   async handle(request: Request, response: Response) {
     try {
-      const { qtd, orderId, productId } = AddItemSchema.parse(request.body);
+      const { quantity, orderId, productId } = AddItemSchema.parse(request.body);
 
       const addItemService = new AddItemService();
 
-      const item = await addItemService.execute({ qtd, orderId, productId });
+      const item = await addItemService.execute({ quantity, orderId, productId });
 
       return response.status(201).json(item);
     } catch (error) {
