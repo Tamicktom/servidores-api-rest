@@ -227,6 +227,81 @@ async function addProduct() {
     });
 }
 
+console.log("It should be possible to get all products from a especific category")
+
+async function getAllProductsFromCategory(categoryId: string) {
+  // add category_id to query params
+  axios.get("http://localhost:3333/category/product?id_category=" + categoryId, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then((response) => {
+      
+    })
+}
+
+console.log("It should be possible to create an order")
+
+const orderSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  table: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+  status: z.string(),
+  draft: z.boolean(),
+});
+
+type Order = z.infer<typeof orderSchema>;
+
+async function createOrder() {
+  const ret: Order = {} as Order;
+  const body = {
+    name: generateRandomName(),
+    table: generateRandomPrice(1, 10),
+  }
+  axios.post("http://localhost:3333/order", body, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then((response) => {
+      console.log(response.data);
+      const tmpOrder = orderSchema.parse(response.data);
+      console.log("Order created!");
+      ret.id = tmpOrder.id;
+      ret.name = tmpOrder.name;
+      ret.table = tmpOrder.table;
+      ret.createdAt = tmpOrder.createdAt;
+      ret.updatedAt = tmpOrder.updatedAt;
+      ret.deletedAt = tmpOrder.deletedAt;
+      ret.status = tmpOrder.status;
+      ret.draft = tmpOrder.draft;
+    })
+    .catch((error) => {
+      console.error("Error creating order");
+      console.log(error);
+    });
+  return ret;
+}
+
+console.log("It should be possible to add a product to an order")
+
+const orderProductSchema = z.object({
+  quantity: z.number(),
+  orderId: z.string().uuid(),
+  productId: z.string().uuid(),
+});
+
+async function addProductToOrder(order: Order) {
+  const body = {
+    quantity: generateRandomPrice(1, 10),
+    orderId: order.id,
+  }
+}
+
 createUser().then(() => {
   setTimeout(() => {
     getSessionToken().then(() => {
@@ -235,6 +310,9 @@ createUser().then(() => {
         addCategory();
         getAllCategories();
         addProduct();
+        createOrder().then((order) => {
+
+        });
       }, 500);
     });
   }, 500);
