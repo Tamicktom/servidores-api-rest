@@ -223,10 +223,12 @@ const productSchema = z.object({
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),
   categoryId: z.string().uuid(),
-  category: fullCategorySchema
+  category: fullCategorySchema.optional()
 });
 
 type Product = z.infer<typeof productSchema>;
+
+const addProductSchema = z.object({});
 
 async function addProduct() {
   const form = await downloadImageToFormData(ImageUrl);
@@ -237,12 +239,14 @@ async function addProduct() {
   form.append("categoryId", categories[0].id);
   axios.post("http://localhost:3333/product", form, {
     headers: {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
+      accept: "application/json",
+      "Content-Type": `multipart/form-data`
     }
   })
     .then((response) => {
-      console.log(response.data);
-      const tmpProduct = productSchema.parse(response.data);
+      console.log("Add product response:", response.data);
+      const tmpProduct = addProductSchema.parse(response.data);
       console.log("Product added!");
     })
     .catch((error) => {
@@ -255,8 +259,11 @@ console.log("It should be possible to get all products from a especific category
 
 const productsSchema = z.array(productSchema);
 
+type Products = z.infer<typeof productsSchema>;
+
 async function listByCategory(categoryId: string) {
   const res: Product[] = [];
+  console.log("Getting all products by category:" + categoryId);
   // add category_id to query params
   axios.get("http://localhost:3333/category/product?id_category=" + categoryId, {
     headers: {
@@ -265,6 +272,7 @@ async function listByCategory(categoryId: string) {
   })
     .then((response) => {
       console.log(response.data);
+      console.log("tmpProducts:", response.data)
       const tmpProducts = productsSchema.parse(response.data);
       console.log("Products retrieved!");
       res.push(...tmpProducts);
@@ -291,7 +299,16 @@ const orderSchema = z.object({
 type Order = z.infer<typeof orderSchema>;
 
 async function createOrder() {
-  const ret: Order = {} as Order;
+  const ret: Order = {
+    id: "",
+    name: "",
+    table: 0,
+    createdAt: "",
+    updatedAt: "",
+    deletedAt: null,
+    status: "",
+    draft: false,
+  };
   const body = {
     name: generateRandomName(),
     table: generateRandomPrice(1, 10),
@@ -336,6 +353,7 @@ const orderProductSchema = z.object({
 async function addProductToOrder(order: Order) {
   const categories = await getAllCategories();
   const products = await listByCategory(categories[0].id);
+  console.warn("Produtos:", products);
   const body = {
     quantity: generateRandomPrice(1, 10),
     orderId: order.id,
@@ -348,12 +366,12 @@ createUser().then(() => {
     getSessionToken().then(() => {
       setTimeout(() => {
         getUserInfo()
-        addCategory();
         getAllCategories()
-        addProduct()
-        createOrder().then((order) => {
-          addProductToOrder(order);
-        });
+        addCategory().then(() => addProduct()).then(() => {
+          createOrder().then((order) => {
+            addProductToOrder(order);
+          });
+        })
       }, 500);
     });
   }, 500);
