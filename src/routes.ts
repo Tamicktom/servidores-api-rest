@@ -13,6 +13,7 @@ import CreateCategoryController from "./controllers/category/CreateCategoryContr
 import ListCategoryController from "./controllers/category/ListCategoryController";
 import CreateProductController from "./controllers/product/CreateProductController";
 import ListByCategoryController from "./controllers/product/ListByCategoryController";
+import ListByNameController from "./controllers/product/ListByNameController";
 import CreateOrderController from "./controllers/order/CreateOrderController";
 import RemoveOrderController from "./controllers/order/RemoveOrderController";
 import AddItemController from "./controllers/order/AddItemController";
@@ -47,6 +48,8 @@ routes.get(
   isAuthenticated,
   new ListByCategoryController().handle
 );
+
+routes.get("/product", isAuthenticated, new ListByNameController().handle);
 
 //* --------- Rotas para Order --------- *//
 routes.post("/order", isAuthenticated, new CreateOrderController().handle);
