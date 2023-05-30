@@ -14,6 +14,8 @@ import ListCategoryController from "./controllers/category/ListCategoryControlle
 import CreateProductController from "./controllers/product/CreateProductController";
 import ListByCategoryController from "./controllers/product/ListByCategoryController";
 import CreateOrderController from "./controllers/order/CreateOrderController";
+import RemoveOrderController from "./controllers/order/RemoveOrderController";
+import AddItemController from "./controllers/order/AddItemController";
 import isAuthenticated from "./middlewares/isAuthenticated";
 
 const routes = Router();
@@ -48,5 +50,11 @@ routes.get(
 
 //* --------- Rotas para Order --------- *//
 routes.post("/order", isAuthenticated, new CreateOrderController().handle);
+routes.post("/order/additem", isAuthenticated, new AddItemController().handle);
+routes.delete(
+  "/order/:id",
+  isAuthenticated,
+  new RemoveOrderController().handle
+);
 
 export { routes };
