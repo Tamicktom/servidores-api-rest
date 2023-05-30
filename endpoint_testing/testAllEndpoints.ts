@@ -201,7 +201,32 @@ async function getAllCategories() {
 
 console.log("It should be possible to add a product");
 
-const productSchema = z.object({});
+const fullCategorySchema = z.object({
+  id: z.string().uuid(),
+  description: z.string(),
+  name: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+});
+
+type FullCategory = z.infer<typeof fullCategorySchema>;
+
+const productSchema = z.object({
+  id: z.string().uuid(),
+  description: z.string(),
+  image: z.string().nullable(),
+  name: z.string(),
+  price: z.number(),
+  banner: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+  categoryId: z.string().uuid(),
+  category: fullCategorySchema
+});
+
+type Product = z.infer<typeof productSchema>;
 
 async function addProduct() {
   const form = await downloadImageToFormData(ImageUrl);
@@ -209,8 +234,7 @@ async function addProduct() {
   form.append("price", `${generateRandomPrice(1, 100)}`);
   form.append("description", generateRandomDescription(50));
   const categories = await getAllCategories();
-  const randomCategory = Math.floor(Math.random() * categories.length);
-  form.append("categoryId", categories[randomCategory].id);
+  form.append("categoryId", categories[0].id);
   axios.post("http://localhost:3333/product", form, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -229,7 +253,10 @@ async function addProduct() {
 
 console.log("It should be possible to get all products from a especific category")
 
-async function getAllProductsFromCategory(categoryId: string) {
+const productsSchema = z.array(productSchema);
+
+async function listByCategory(categoryId: string) {
+  const res: Product[] = [];
   // add category_id to query params
   axios.get("http://localhost:3333/category/product?id_category=" + categoryId, {
     headers: {
@@ -237,8 +264,15 @@ async function getAllProductsFromCategory(categoryId: string) {
     }
   })
     .then((response) => {
-      
-    })
+      console.log(response.data);
+      const tmpProducts = productsSchema.parse(response.data);
+      console.log("Products retrieved!");
+      res.push(...tmpProducts);
+    }).catch((error) => {
+      console.error("Error retrieving products");
+      console.log(error);
+    });
+  return res;
 }
 
 console.log("It should be possible to create an order")
@@ -290,15 +324,22 @@ async function createOrder() {
 console.log("It should be possible to add a product to an order")
 
 const orderProductSchema = z.object({
+  id: z.string().uuid(),
   quantity: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
   orderId: z.string().uuid(),
   productId: z.string().uuid(),
 });
 
 async function addProductToOrder(order: Order) {
+  const categories = await getAllCategories();
+  const products = await listByCategory(categories[0].id);
   const body = {
     quantity: generateRandomPrice(1, 10),
     orderId: order.id,
+    productId: products[0].id,
   }
 }
 
@@ -308,10 +349,10 @@ createUser().then(() => {
       setTimeout(() => {
         getUserInfo()
         addCategory();
-        getAllCategories();
-        addProduct();
+        getAllCategories()
+        addProduct()
         createOrder().then((order) => {
-
+          addProductToOrder(order);
         });
       }, 500);
     });
