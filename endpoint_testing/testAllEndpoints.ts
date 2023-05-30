@@ -30,6 +30,22 @@ function generateRandomName() {
   return randomName;
 }
 
+function generateRandomDescription(size: number) {
+  let randomDescription = ""
+  for (let i = 0; i < size; i++) {
+    randomDescription += String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+  }
+  //put some spaces
+  randomDescription = randomDescription.replace(/(.{10})/g, "$1 ");
+  //put a dot at the end
+  randomDescription += ".";
+  return randomDescription;
+}
+
+function generateRandomPrice(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function generateRandomEmail() {
   let beforeAt = ""
   for (let i = 0; i < 10; i++) {
@@ -140,7 +156,7 @@ const categorySchema = z.object({
 
 async function addCategory() {
   const body = {
-    name: "Category Test"
+    name: generateRandomName()
   }
   axios.post("http://localhost:3333/category", body, {
     headers: {
@@ -189,11 +205,12 @@ const productSchema = z.object({});
 
 async function addProduct() {
   const form = await downloadImageToFormData(ImageUrl);
-  form.append("name", "Product Test");
-  form.append("price", "20");
-  form.append("description", "grande e amarela");
+  form.append("name", generateRandomName());
+  form.append("price", `${generateRandomPrice(1, 100)}`);
+  form.append("description", generateRandomDescription(50));
   const categories = await getAllCategories();
-  form.append("categoryId", categories[0].id);
+  const randomCategory = Math.floor(Math.random() * categories.length);
+  form.append("categoryId", categories[randomCategory].id);
   axios.post("http://localhost:3333/product", form, {
     headers: {
       Authorization: `Bearer ${token}`
