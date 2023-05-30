@@ -7,7 +7,7 @@ import type { ProductCategory } from "../../controllers/product/ListByCategoryCo
 export default class ListByCategoryService {
   async execute({ id_category }: ProductCategory) {
     const products = await p.product.findMany({
-      where: { id: id_category },
+      where: { categoryId: id_category },
       include: { category: true },
     });
 

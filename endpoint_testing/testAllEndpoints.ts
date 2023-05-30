@@ -81,7 +81,7 @@ async function createUser() {
     email: randomUser.email,
     password: randomUser.password
   }
-  axios.post("http://localhost:3333/user", body)
+  await axios.post("http://localhost:3333/user", body)
     .then((response) => {
       console.log(response.data);
       const tmpUser = userSchema.parse(response.data);
@@ -109,7 +109,7 @@ async function getSessionToken() {
     password: randomUser.password,
     name: user.name
   }
-  axios.post("http://localhost:3333/session", body)
+  await axios.post("http://localhost:3333/session", body)
     .then((response) => {
       console.log(response.data);
       const tmpSession = sessionSchema.parse(response.data);
@@ -131,7 +131,7 @@ const userInfoSchema = z.object({
 });
 
 async function getUserInfo() {
-  axios.get("http://localhost:3333/userinfo", {
+  await axios.get("http://localhost:3333/userinfo", {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -158,7 +158,7 @@ async function addCategory() {
   const body = {
     name: generateRandomName()
   }
-  axios.post("http://localhost:3333/category", body, {
+  await axios.post("http://localhost:3333/category", body, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -201,7 +201,34 @@ async function getAllCategories() {
 
 console.log("It should be possible to add a product");
 
-const productSchema = z.object({});
+const fullCategorySchema = z.object({
+  id: z.string().uuid(),
+  description: z.string(),
+  name: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+});
+
+type FullCategory = z.infer<typeof fullCategorySchema>;
+
+const productSchema = z.object({
+  id: z.string().uuid(),
+  description: z.string(),
+  image: z.string().nullable(),
+  name: z.string(),
+  price: z.number(),
+  banner: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+  categoryId: z.string().uuid(),
+  category: fullCategorySchema.optional()
+});
+
+type Product = z.infer<typeof productSchema>;
+
+const addProductSchema = z.object({});
 
 async function addProduct() {
   const form = await downloadImageToFormData(ImageUrl);
@@ -209,20 +236,163 @@ async function addProduct() {
   form.append("price", `${generateRandomPrice(1, 100)}`);
   form.append("description", generateRandomDescription(50));
   const categories = await getAllCategories();
-  const randomCategory = Math.floor(Math.random() * categories.length);
-  form.append("categoryId", categories[randomCategory].id);
-  axios.post("http://localhost:3333/product", form, {
+  form.append("categoryId", categories[0].id);
+  await axios.post("http://localhost:3333/product", form, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      accept: "application/json",
+      "Content-Type": `multipart/form-data`
+    }
+  })
+    .then((response) => {
+      console.log("Add product response:", response.data);
+      const tmpProduct = addProductSchema.parse(response.data);
+      console.log("Product added!");
+    })
+    .catch((error) => {
+      console.error("Error adding product");
+      console.log(error);
+    });
+}
+
+console.log("It should be possible to get all products from a especific category")
+
+const productsSchema = z.array(z.object({
+  id: z.string().uuid(),
+  description: z.string(),
+  image: z.string().nullable(),
+  name: z.string(),
+  price: z.number(),
+  banner: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+  categoryId: z.string().uuid(),
+  category: z.object({
+    id: z.string().uuid(),
+    description: z.string().nullable(),
+    name: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    deletedAt: z.string().nullable(),
+  })
+}));
+
+type Products = z.infer<typeof productsSchema>;
+
+async function listByCategory(categoryId: string) {
+  const res: Products = [];
+  console.log("Getting all products by category:" + categoryId);
+  // add category_id to query params
+  console.log(`http://localhost:3333/category/product?id_category=${categoryId}`);
+  await axios.get(`http://localhost:3333/category/product?id_category=${categoryId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      accept: "application/json",
+    }
+  })
+    .then((response) => {
+      console.log(response.data);
+      const tmpProducts = productsSchema.parse(response.data);
+      console.log("Products retrieved!");
+      res.push(...tmpProducts);
+    }).catch((error) => {
+      console.error("Error retrieving products");
+      console.log(error);
+    });
+  return res;
+}
+
+console.log("It should be possible to create an order")
+
+const orderSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  table: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+  status: z.string(),
+  draft: z.boolean(),
+});
+
+type Order = z.infer<typeof orderSchema>;
+
+async function createOrder() {
+  const ret: Order = {
+    id: "",
+    name: "",
+    table: 0,
+    createdAt: "",
+    updatedAt: "",
+    deletedAt: null,
+    status: "",
+    draft: false,
+  };
+  const body = {
+    name: generateRandomName(),
+    table: generateRandomPrice(1, 10),
+  }
+  await axios.post("http://localhost:3333/order", body, {
     headers: {
       Authorization: `Bearer ${token}`
     }
   })
     .then((response) => {
       console.log(response.data);
-      const tmpProduct = productSchema.parse(response.data);
-      console.log("Product added!");
+      const tmpOrder = orderSchema.parse(response.data);
+      console.log("Order created!");
+      ret.id = tmpOrder.id;
+      ret.name = tmpOrder.name;
+      ret.table = tmpOrder.table;
+      ret.createdAt = tmpOrder.createdAt;
+      ret.updatedAt = tmpOrder.updatedAt;
+      ret.deletedAt = tmpOrder.deletedAt;
+      ret.status = tmpOrder.status;
+      ret.draft = tmpOrder.draft;
     })
     .catch((error) => {
-      console.error("Error adding product");
+      console.error("Error creating order");
+      console.log(error);
+    });
+  return ret;
+}
+
+console.log("It should be possible to add a product to an order")
+
+const orderProductSchema = z.object({
+  id: z.string().uuid(),
+  quantity: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+  orderId: z.string().uuid(),
+  productId: z.string().uuid(),
+});
+
+async function addProductToOrder(order: Order) {
+  const categories = await getAllCategories();
+  if (!categories.length) throw new Error("No categories found");
+  const products = await listByCategory(categories[0].id);
+  if (!products.length) throw new Error("No products found");
+  console.warn("Produtos:", products);
+  const body = {
+    quantity: generateRandomPrice(1, 10),
+    orderId: order.id,
+    productId: products[0].id,
+  }
+  await axios.post("http://localhost:3333/order/additem", body, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then((response) => {
+      console.log(response.data);
+      const tmpOrderProduct = orderProductSchema.parse(response.data);
+      console.log("Product added to order!");
+    })
+    .catch((error) => {
+      console.error("Error adding product to order");
       console.log(error);
     });
 }
@@ -232,9 +402,12 @@ createUser().then(() => {
     getSessionToken().then(() => {
       setTimeout(() => {
         getUserInfo()
-        addCategory();
-        getAllCategories();
-        addProduct();
+        getAllCategories()
+        addCategory().then(() => addProduct()).then(() => {
+          createOrder().then((order) => {
+            addProductToOrder(order);
+          });
+        })
       }, 500);
     });
   }, 500);
