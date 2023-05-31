@@ -472,9 +472,7 @@ createUser().then(() => {
           .then(() => {
             createOrder().then((order) => {
               addProductToOrder(order).then((item) => {
-                setTimeout(() => {
-                  removeProductFromOrder(item.orderId, item.id);
-                }, 500);
+                removeProductFromOrder(item.orderId, item.id);
               });
             });
           });
