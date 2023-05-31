@@ -14,7 +14,16 @@ export default function isAuthenticated(
   res: Response,
   next: NextFunction
 ) {
-  const { authorization } = req.headers;
+  let authorization: string;
+  try {
+    const authorizationHeader = req.headers.authorization;
+    if (!authorizationHeader)
+      return res.status(401).json({ error: "Unauthorized" }).end();
+    authorization = authorizationHeader;
+  } catch (error) {
+    console.error(error);
+    return res.status(401).json({ error: "Unauthorized" }).end();
+  }
 
   if (!authorization)
     return res.status(401).json({ error: "Unauthorized" }).end();

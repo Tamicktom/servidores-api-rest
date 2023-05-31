@@ -1,10 +1,8 @@
 //* Libraries imports
 import type { Request, Response } from "express";
-import z from "zod";
 
 //* Controllers imports
 import CreateUserController from "../../../src/controllers/user/CreateUserController";
-import CreateUserService from "../../../src/services/user/CreateUserService";
 
 // Mock do serviço CreateUserService
 jest.mock("../../../src/services/user/CreateUserService", () => {

@@ -1,6 +1,5 @@
 import AuthUserController from "../../../src/controllers/user/AuthUserController";
-import AuthUserService from "../../../src/services/user/AuthUserService";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 
 // Mock do serviço AuthUserService
 jest.mock("../../../src/services/user/AuthUserService", () => {

@@ -16,6 +16,7 @@ import ListByCategoryController from "./controllers/product/ListByCategoryContro
 import ListByNameController from "./controllers/product/ListByNameController";
 import CreateOrderController from "./controllers/order/CreateOrderController";
 import RemoveOrderController from "./controllers/order/RemoveOrderController";
+import RemoveItemController from "./controllers/order/RemoveItemController";
 import AddItemController from "./controllers/order/AddItemController";
 import isAuthenticated from "./middlewares/isAuthenticated";
 
@@ -58,6 +59,11 @@ routes.delete(
   "/order/:id",
   isAuthenticated,
   new RemoveOrderController().handle
+);
+routes.post(
+  "/order/item",
+  isAuthenticated,
+  new RemoveItemController().handle
 );
 
 export { routes };
