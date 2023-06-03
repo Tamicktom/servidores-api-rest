@@ -2,7 +2,12 @@
 
 ## Descrição do Projeto
 
-Trabalho desenvolvido para a matéria do professor Eduardo da Fatec Jales.
+Trabalho desenvolvido para a matéria do professor Eduardo da Fatec Jales. É uma API contruida com Node, Express, Prisma, SQLite, Jest, Zod, Typescript e outras tecnologias.
+
+## Requisitos
+
+- Node.js
+- Um gerenciador de pacotes (npm, yarn ou pnpm)
 
 ## Como rodar a aplicação
 
