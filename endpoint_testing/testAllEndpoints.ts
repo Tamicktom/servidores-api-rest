@@ -546,6 +546,44 @@ async function getOrderDetails(order: Order) {
     });
 }
 
+const sendOrderSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  table: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+  status: z.string(),
+  draft: z.boolean(),
+});
+
+async function sendOrder(order: Order) {
+  const body = {
+    id: order.id,
+  };
+  await axios
+    .post(`http://localhost:3333/order/send`, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => {
+      console.log(response.data);
+      const tmpOrder = sendOrderSchema.parse(response.data);
+      console.log("Order sent!");
+      console.log(tmpOrder);
+    })
+    .catch((error) => {
+      if (error instanceof z.ZodError) {
+        console.error("Error sending order");
+        console.log(error);
+      } else {
+        console.error("Error sending order");
+        console.log(error);
+      }
+    });
+}
+
 createUser().then(() => {
   setTimeout(() => {
     getSessionToken().then(() => {
@@ -564,6 +602,7 @@ createUser().then(() => {
               });
               addProductToOrder(order).then((item) => {
                 getOrderDetails(order);
+                sendOrder(order);
               });
             });
           });
