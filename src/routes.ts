@@ -20,6 +20,7 @@ import RemoveItemController from "./controllers/order/RemoveItemController";
 import AddItemController from "./controllers/order/AddItemController";
 import ListOrderController from "./controllers/order/ListOrderController";
 import OrderDetailsController from "./controllers/order/OrderDetailsController";
+import SendOrderController from "./controllers/order/SendOrderController";
 import isAuthenticated from "./middlewares/isAuthenticated";
 
 const routes = Router();
@@ -69,5 +70,6 @@ routes.get(
   isAuthenticated,
   new OrderDetailsController().handle
 );
+routes.post("/order/send", isAuthenticated, new SendOrderController().handle);
 
 export { routes };
