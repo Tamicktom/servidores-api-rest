@@ -461,6 +461,44 @@ async function removeProductFromOrder(order: string, itemId: string) {
     });
 }
 
+const listOrderSchema = z.array(
+  z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    table: z.number(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    deletedAt: z.string().nullable(),
+    status: z.string(),
+    draft: z.boolean(),
+  })
+);
+
+async function listOrders(listBy: "hour" | "date" | "name") {
+  const query = `http://localhost:3333/order/listall?search&page=1&limit&listBy=${listBy}`;
+  await axios
+    .get(query, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => {
+      console.log(response.data);
+      const tmpOrders = listOrderSchema.parse(response.data);
+      console.log("Orders retrieved!");
+      console.log(tmpOrders);
+    })
+    .catch((error) => {
+      if (error instanceof z.ZodError) {
+        console.error("Error retrieving orders");
+        console.log(error);
+      } else {
+        console.error("Error retrieving orders");
+        console.log(error);
+      }
+    });
+}
+
 createUser().then(() => {
   setTimeout(() => {
     getSessionToken().then(() => {
@@ -473,6 +511,9 @@ createUser().then(() => {
             createOrder().then((order) => {
               addProductToOrder(order).then((item) => {
                 removeProductFromOrder(item.orderId, item.id);
+                listOrders("hour");
+                listOrders("date");
+                listOrders("name");
               });
             });
           });

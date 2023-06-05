@@ -6,8 +6,8 @@ import z from "zod";
 import ListOrderService from "../../services/order/ListOrderService";
 
 const ListOrderSchema = z.object({
-  page: z.number().int().positive().optional(),
-  limit: z.number().int().positive().optional(),
+  page: z.string().optional(),
+  limit: z.string().optional(),
   search: z.string().optional(),
   listBy: z.enum(["name", "date", "hour"]).optional(),
 });
@@ -35,7 +35,10 @@ export default class ListOrderController {
       if (error instanceof z.ZodError) {
         return response.status(400).json({ error: error.issues });
       } else {
-        return response.status(500).json({ error: "Server error" });
+        if (error instanceof Error) {
+          return response.status(500).json({ error: error.message });
+        }
+        return response.status(500).json({ error: error });
       }
     }
   }
