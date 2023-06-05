@@ -19,6 +19,7 @@ import RemoveOrderController from "./controllers/order/RemoveOrderController";
 import RemoveItemController from "./controllers/order/RemoveItemController";
 import AddItemController from "./controllers/order/AddItemController";
 import ListOrderController from "./controllers/order/ListOrderController";
+import OrderDetailsController from "./controllers/order/OrderDetailsController";
 import isAuthenticated from "./middlewares/isAuthenticated";
 
 const routes = Router();
@@ -63,5 +64,10 @@ routes.delete(
 );
 routes.post("/order/item", isAuthenticated, new RemoveItemController().handle);
 routes.get("/order/listall", isAuthenticated, new ListOrderController().handle);
+routes.get(
+  "/order/details",
+  isAuthenticated,
+  new OrderDetailsController().handle
+);
 
 export { routes };
