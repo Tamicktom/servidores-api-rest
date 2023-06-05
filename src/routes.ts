@@ -70,6 +70,6 @@ routes.get(
   isAuthenticated,
   new OrderDetailsController().handle
 );
-routes.post("/order/send", new SendOrderController().handle);
+routes.post("/order/send", isAuthenticated, new SendOrderController().handle);
 
 export { routes };
