@@ -36,19 +36,21 @@ export default class ListOrderService {
       });
     }
 
-    //* list by name
-    orders = await p.order.findMany({
-      where: {
-        name: {
-          contains: search,
+    if (listBy === "name") {
+      //* list by name
+      orders = await p.order.findMany({
+        where: {
+          name: {
+            contains: search,
+          },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+        orderBy: {
+          createdAt: "desc",
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+      });
+    }
 
     return orders;
   }
