@@ -72,6 +72,6 @@ routes.get(
   new OrderDetailsController().handle
 );
 routes.post("/order/send", isAuthenticated, new SendOrderController().handle);
-routes.post("/order/close",  new CloseOrderController().handle);
+routes.post("/order/close", isAuthenticated, new CloseOrderController().handle);
 
 export { routes };

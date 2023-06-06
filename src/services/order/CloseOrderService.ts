@@ -31,7 +31,7 @@ export default class CloseOrderService {
         error: "Order is not open",
       };
     } else {
-      p.order.update({
+      await p.order.update({
         where: {
           id,
         },
