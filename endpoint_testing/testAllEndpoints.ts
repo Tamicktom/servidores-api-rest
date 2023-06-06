@@ -68,8 +68,6 @@ let token: string = "";
 
 console.log("Test all EndPoints!");
 
-console.log("It should be possible to create an account");
-
 const userSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
@@ -87,7 +85,6 @@ async function createUser() {
   await axios
     .post("http://localhost:3333/user", body)
     .then((response) => {
-      console.log(response.data);
       const tmpUser = userSchema.parse(response.data);
       user.id = tmpUser.id;
       user.name = tmpUser.name;
@@ -99,8 +96,6 @@ async function createUser() {
       console.log(error);
     });
 }
-
-console.log("It should be possible to get session token");
 
 const sessionSchema = z.object({
   token: z.string(),
@@ -116,7 +111,6 @@ async function getSessionToken() {
   await axios
     .post("http://localhost:3333/session", body)
     .then((response) => {
-      console.log(response.data);
       const tmpSession = sessionSchema.parse(response.data);
       token = tmpSession.token;
       console.log("Session token created!");
@@ -126,8 +120,6 @@ async function getSessionToken() {
       console.log(error);
     });
 }
-
-console.log("It should be possible to get user info");
 
 const userInfoSchema = z.object({
   id: z.string().uuid(),
@@ -143,7 +135,6 @@ async function getUserInfo() {
       },
     })
     .then((response) => {
-      console.log(response.data);
       const tmpUserInfo = userInfoSchema.parse(response.data);
       console.log("User info retrieved!");
     })
@@ -152,8 +143,6 @@ async function getUserInfo() {
       console.log(error);
     });
 }
-
-console.log("It should be possible to add a category");
 
 const categorySchema = z.object({
   id: z.string().uuid(),
@@ -171,7 +160,6 @@ async function addCategory() {
       },
     })
     .then((response) => {
-      console.log(response.data);
       const tmpCategory = categorySchema.parse(response.data);
       console.log("Category added!");
     })
@@ -180,8 +168,6 @@ async function addCategory() {
       console.log(error);
     });
 }
-
-console.log("It should be possible to get all categories");
 
 const categoriesSchema = z.array(categorySchema);
 
@@ -196,7 +182,6 @@ async function getAllCategories() {
       },
     })
     .then((response) => {
-      console.log(response.data);
       const tmpCategories = categoriesSchema.parse(response.data);
       console.log("Categories retrieved!");
       res.push(...tmpCategories);
@@ -207,8 +192,6 @@ async function getAllCategories() {
     });
   return res;
 }
-
-console.log("It should be possible to add a product");
 
 const fullCategorySchema = z.object({
   id: z.string().uuid(),
@@ -255,7 +238,6 @@ async function addProduct() {
       },
     })
     .then((response) => {
-      console.log("Add product response:", response.data);
       const tmpProduct = addProductSchema.parse(response.data);
       console.log("Product added!");
     })
@@ -264,10 +246,6 @@ async function addProduct() {
       console.log(error);
     });
 }
-
-console.log(
-  "It should be possible to get all products from a especific category"
-);
 
 const productsSchema = z.array(
   z.object({
@@ -296,7 +274,6 @@ type Products = z.infer<typeof productsSchema>;
 
 async function listByCategory(categoryId: string) {
   const res: Products = [];
-  console.log("Getting all products by category:" + categoryId);
   // add category_id to query params
   console.log(
     `http://localhost:3333/category/product?id_category=${categoryId}`
@@ -309,7 +286,6 @@ async function listByCategory(categoryId: string) {
       },
     })
     .then((response) => {
-      console.log(response.data);
       const tmpProducts = productsSchema.parse(response.data);
       console.log("Products retrieved!");
       res.push(...tmpProducts);
@@ -320,8 +296,6 @@ async function listByCategory(categoryId: string) {
     });
   return res;
 }
-
-console.log("It should be possible to create an order");
 
 const orderSchema = z.object({
   id: z.string().uuid(),
@@ -358,7 +332,6 @@ async function createOrder() {
       },
     })
     .then((response) => {
-      console.log(response.data);
       const tmpOrder = orderSchema.parse(response.data);
       console.log("Order created!");
       ret.id = tmpOrder.id;
@@ -377,8 +350,6 @@ async function createOrder() {
   return ret;
 }
 
-console.log("It should be possible to add a product to an order");
-
 const orderProductSchema = z.object({
   id: z.string().uuid(),
   quantity: z.number(),
@@ -396,7 +367,6 @@ async function addProductToOrder(order: Order) {
   if (!categories.length) throw new Error("No categories found");
   const products = await listByCategory(categories[0].id);
   if (!products.length) throw new Error("No products found");
-  console.warn("Produtos:", products);
   const body = {
     quantity: generateRandomPrice(1, 10),
     orderId: order.id,
@@ -418,7 +388,6 @@ async function addProductToOrder(order: Order) {
       },
     })
     .then((response) => {
-      console.log(response.data);
       const tmpOrderProduct = orderProductSchema.parse(response.data);
       res.id = tmpOrderProduct.id;
       res.quantity = tmpOrderProduct.quantity;
@@ -450,7 +419,6 @@ async function removeProductFromOrder(order: string, itemId: string) {
       },
     })
     .then((response) => {
-      console.log(response.data);
       if (response.data.message !== "Item removed successfully")
         console.error("Error removing product from order", response.data);
       console.log("Product removed from order!");
@@ -483,10 +451,8 @@ async function listOrders(listBy: "hour" | "date" | "name") {
       },
     })
     .then((response) => {
-      console.log(response.data);
       const tmpOrders = listOrderSchema.parse(response.data);
       console.log("Orders retrieved!");
-      console.log(tmpOrders);
     })
     .catch((error) => {
       if (error instanceof z.ZodError) {
@@ -530,10 +496,8 @@ async function getOrderDetails(order: Order) {
       },
     })
     .then((response) => {
-      console.log(response.data);
       const tmpOrder = orderDetailsSchema.parse(response.data);
       console.log("Order details retrieved!");
-      console.log(tmpOrder);
     })
     .catch((error) => {
       if (error instanceof z.ZodError) {
@@ -568,10 +532,8 @@ async function sendOrder(order: Order) {
       },
     })
     .then((response) => {
-      console.log(response.data);
       const tmpOrder = sendOrderSchema.parse(response.data);
       console.log("Order sent!");
-      console.log(tmpOrder);
     })
     .catch((error) => {
       if (error instanceof z.ZodError) {
@@ -632,10 +594,8 @@ async function closeOrder(order: Order) {
       },
     })
     .then((response) => {
-      console.log(response.data);
       const tmpOrder = closeOrderSchema.parse(response.data);
       console.log("Order closed!");
-      console.log(tmpOrder);
     })
     .catch((error) => {
       if (error instanceof z.ZodError) {
