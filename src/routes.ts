@@ -21,6 +21,7 @@ import AddItemController from "./controllers/order/AddItemController";
 import ListOrderController from "./controllers/order/ListOrderController";
 import OrderDetailsController from "./controllers/order/OrderDetailsController";
 import SendOrderController from "./controllers/order/SendOrderController";
+import CloseOrderController from "./controllers/order/CloseOrderController";
 import isAuthenticated from "./middlewares/isAuthenticated";
 
 const routes = Router();
@@ -71,5 +72,6 @@ routes.get(
   new OrderDetailsController().handle
 );
 routes.post("/order/send", isAuthenticated, new SendOrderController().handle);
+routes.post("/order/close", isAuthenticated, new CloseOrderController().handle);
 
 export { routes };
