@@ -584,6 +584,70 @@ async function sendOrder(order: Order) {
     });
 }
 
+const closeOrderSchema = z.object({
+  order: z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    table: z.number(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    deletedAt: z.string().nullable(),
+    status: z.string(),
+    draft: z.boolean(),
+    items: z.array(
+      z.object({
+        id: z.string().uuid(),
+        quantity: z.number(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+        deletedAt: z.string().nullable(),
+        orderId: z.string().uuid(),
+        productId: z.string().uuid(),
+        product: z.object({
+          id: z.string().uuid(),
+          description: z.string(),
+          image: z.string().nullable(),
+          price: z.number(),
+          banner: z.string(),
+          createdAt: z.string(),
+          updatedAt: z.string(),
+          deletedAt: z.string().nullable(),
+          categoryId: z.string().uuid(),
+        }),
+      })
+    ),
+  }),
+  totalPrice: z.number(),
+});
+
+async function closeOrder(order: Order) {
+  const body = {
+    id: order.id,
+  };
+
+  await axios
+    .post(`http://localhost:3333/order/close`, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => {
+      console.log(response.data);
+      const tmpOrder = closeOrderSchema.parse(response.data);
+      console.log("Order closed!");
+      console.log(tmpOrder);
+    })
+    .catch((error) => {
+      if (error instanceof z.ZodError) {
+        console.error("Error closing order");
+        console.log(error);
+      } else {
+        console.error("Error closing order");
+        console.log(error);
+      }
+    });
+}
+
 createUser().then(() => {
   setTimeout(() => {
     getSessionToken().then(() => {
@@ -600,9 +664,10 @@ createUser().then(() => {
                 listOrders("date");
                 listOrders("name");
               });
-              addProductToOrder(order).then((item) => {
-                getOrderDetails(order);
-                sendOrder(order);
+              addProductToOrder(order).then(async (item) => {
+                await getOrderDetails(order);
+                await sendOrder(order);
+                await closeOrder(order);
               });
             });
           });
