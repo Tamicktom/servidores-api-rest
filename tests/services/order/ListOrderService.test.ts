@@ -29,10 +29,10 @@ describe('ListOrderService', () => {
 
   it('should list orders by name', async () => {
     const req = {
-      page: 1,
-      limit: 10,
+      page: "1",
+      limit: "10",
       search: 'test',
-      listBy: 'name',
+      listBy: 'name' as const,
     };
 
     const orders = [
@@ -45,7 +45,7 @@ describe('ListOrderService', () => {
 
     (p.order.findMany as jest.Mock).mockResolvedValueOnce(orders);
 
-    const result = await listOrderService.execute(req as unknown as RightRequest);
+    const result = await listOrderService.execute(req);
 
     expect(p.order.findMany).toHaveBeenCalledWith({
       where: {
